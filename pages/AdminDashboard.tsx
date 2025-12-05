@@ -49,14 +49,21 @@ export const AdminDashboard: React.FC = () => {
 
       if (error) throw error;
 
-      const mappedData = (data || []).map((req: any) => ({
-        ...req,
-        student_roll_no: req.profiles?.roll_no,
-        hostel_name: req.profiles?.hostel_name,
-        room_no: req.profiles?.room_no,
-        parent_mobile: req.profiles?.parent_mobile,
-        year: req.profiles?.year,
-      }));
+      const mappedData = (data || []).map((req: any) => {
+        const submitted = req.submitted_data || {};
+        return {
+          ...req,
+          // Prefer submitted data, fallback to profile data
+          student_name: submitted.name || req.student_name,
+          student_roll_no: submitted.roll_no || req.profiles?.roll_no,
+          hostel_name: submitted.hostel || req.profiles?.hostel_name,
+          room_no: submitted.room_no || req.profiles?.room_no,
+          parent_mobile: submitted.parent_mobile || req.profiles?.parent_mobile,
+          year: submitted.year || req.profiles?.year,
+          place_of_visit: submitted.place_of_visit || 'N/A',
+          department: submitted.department || req.department
+        };
+      });
 
       setPendingRequests(mappedData);
     } catch (e) {
@@ -84,6 +91,7 @@ export const AdminDashboard: React.FC = () => {
 
       if (status === RequestStatus.APPROVED) {
         updates.approved_by = approvedByName;
+        updates.approved_at = new Date().toISOString();
       } else if (status === RequestStatus.REJECTED) {
         updates.rejection_reason = rejectionReason;
       }
@@ -94,6 +102,14 @@ export const AdminDashboard: React.FC = () => {
         .eq('id', id);
 
       if (error) throw error;
+
+      // If approved, trigger slip generation (optional, but good practice to ensure it exists)
+      if (status === RequestStatus.APPROVED) {
+        // We can fire-and-forget the edge function call here if needed
+        supabase.functions.invoke('generate_slip', {
+          body: JSON.stringify({ request_id: id })
+        });
+      }
 
       resetActionStates();
       fetchPending();
@@ -308,24 +324,31 @@ export const AdminDashboard: React.FC = () => {
               {pendingRequests.map(req => (
                 <div key={req.id} className="bg-white/90 backdrop-blur shadow rounded-lg p-6 border-l-4 border-yellow-400">
                   <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900">{req.student_name} <span className="text-gray-500 text-sm">({req.student_roll_no})</span></h3>
-                      <p className="text-sm text-gray-500">{req.department} • {req.year}</p>
-                      <p className="text-sm text-gray-500">{req.hostel_name} - {req.room_no}</p>
-                      <div className="mt-2 text-sm">
-                        <span className="font-semibold text-gray-700">Reason:</span> {req.reason}
+                    <div className="w-full">
+                      <div className="flex justify-between">
+                        <h3 className="text-lg font-bold text-gray-900">{req.student_name} <span className="text-gray-500 text-sm font-normal">({req.student_roll_no || 'No Roll No'})</span></h3>
+                        <StatusBadge status={req.status} />
                       </div>
-                      <div className="mt-1 text-sm">
-                        <span className="font-semibold text-gray-700">Duration:</span> {req.start_date} <i className="fas fa-arrow-right text-xs mx-1"></i> {req.end_date}
-                      </div>
-                      <div className="mt-1 text-sm text-red-600">
-                        <i className="fas fa-phone mr-1"></i> Parent: {req.parent_mobile}
-                      </div>
-                    </div>
 
-                    <div className="flex flex-col items-end space-y-2">
-                      <StatusBadge status={req.status} />
-                      <span className="text-xs text-gray-400">{new Date(req.created_at).toLocaleDateString()}</span>
+                      <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-600">
+                        <div><span className="font-semibold text-gray-800">Department:</span> {req.department}</div>
+                        <div><span className="font-semibold text-gray-800">Year:</span> {req.year || 'N/A'}</div>
+                        <div><span className="font-semibold text-gray-800">Hostel:</span> {req.hostel_name || 'N/A'}</div>
+                        <div><span className="font-semibold text-gray-800">Room No:</span> {req.room_no || 'N/A'}</div>
+                        <div><span className="font-semibold text-gray-800">Place of Visit:</span> {(req as any).place_of_visit || 'N/A'}</div>
+                        <div className="text-red-600 font-medium"><i className="fas fa-phone mr-1"></i> Parent: {req.parent_mobile || 'N/A'}</div>
+                      </div>
+
+                      <div className="mt-4 bg-gray-50 p-3 rounded border border-gray-100">
+                        <div className="text-sm">
+                          <span className="font-bold text-gray-800 block mb-1">Reason for Leave:</span>
+                          {req.reason}
+                        </div>
+                        <div className="mt-2 text-sm font-medium text-gray-900">
+                          <i className="far fa-calendar-alt mr-2 text-gray-500"></i>
+                          {req.start_date} <i className="fas fa-arrow-right text-xs mx-2 text-gray-400"></i> {req.end_date}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -357,8 +380,8 @@ export const AdminDashboard: React.FC = () => {
                             onClick={() => handleAction(req.id, RequestStatus.REJECTED)}
                             disabled={!rejectionReason.trim()}
                             className={`px-3 py-1 rounded text-sm shadow-sm whitespace-nowrap transition-colors ${!rejectionReason.trim()
-                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                : 'bg-red-600 text-white hover:bg-red-700'
+                              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                              : 'bg-red-600 text-white hover:bg-red-700'
                               }`}
                           >
                             Reject
