@@ -134,7 +134,10 @@ export const SlipModal: React.FC<SlipModalProps> = ({ request, onClose }) => {
                      <div className="flex items-end justify-between">
                         <div className="text-sm text-gray-500 italic">
                            <div>Status: <span className="text-green-600 font-bold uppercase text-lg not-italic">APPROVED</span></div>
-                           <div className="mt-1">By Admin</div>
+                           <div className="mt-1">By, {request.approved_by || 'Admin'}</div>
+                           <div className="text-xs mt-0.5">Sr.Project Manager</div>
+                           <div className="text-xs">Puthiya Thalaimurai Foundation</div>
+                           <div className="text-xs">8754417400</div>
                         </div>
 
                         <div className="text-right text-xs text-gray-400">
