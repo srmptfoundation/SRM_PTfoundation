@@ -1,8 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../App';
 
 export const Forbidden: React.FC = () => {
     const navigate = useNavigate();
+    const { signOut } = useAuth();
+
+    const handleSignOut = async () => {
+        await signOut();
+        navigate('/');
+    };
 
     return (
         <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4">
@@ -21,7 +28,7 @@ export const Forbidden: React.FC = () => {
                     Your account is not authorized to access this application. Please contact your administrator if you believe this is an error.
                 </p>
                 <button
-                    onClick={() => navigate('/')}
+                    onClick={handleSignOut}
                     className="rounded bg-gray-800 px-4 py-2 font-bold text-white hover:bg-gray-700"
                 >
                     Go to Sign In
