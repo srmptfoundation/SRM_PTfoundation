@@ -42,4 +42,15 @@ export interface LeaveRequest {
   room_no?: string;
   parent_mobile?: string;
   year?: string;
+  // New field for slip generation
+  submitted_data?: {
+    name: string;
+    roll_no: string;
+    hostel: string;
+    room_no: string;
+    parent_mobile: string;
+    place_of_visit: string;
+    year: string;
+    department: string;
+  };
 }
