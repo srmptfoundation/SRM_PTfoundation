@@ -80,7 +80,7 @@ export const StaffDashboard: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-transparent">
-            <Navbar title="Staff / Warden View" />
+            <Navbar title="Staff View" />
             <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
 
                 {/* Stats Cards */}
