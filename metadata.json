@@ -1,0 +1,5 @@
+{
+  "name": "PTF Vizhuthugal Leave Portal",
+  "description": "A role-based leave management system for students, staff, and admins of the Puthiya Thalaimurai Foundation.",
+  "requestFramePermissions": []
+}

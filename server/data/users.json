@@ -1,0 +1,23 @@
+[
+  {
+    "email": "student1@example.com",
+    "role": "student",
+    "name": "Hari Kumar",
+    "roll_no": "RA2011002010234",
+    "dept": "B.Tech Mech",
+    "year": "4th Year",
+    "hostel_name": "JA BLOCK",
+    "room_no": "410",
+    "parent_mobile": "9025085588"
+  },
+  {
+    "email": "warden@ptf.org",
+    "role": "staff",
+    "name": "Mr. A. Maniraj"
+  },
+  {
+    "email": "admin@ptf.org",
+    "role": "admin",
+    "name": "System Admin"
+  }
+]
