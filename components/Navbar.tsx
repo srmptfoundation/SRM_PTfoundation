@@ -3,7 +3,7 @@ import { useAuth } from '../App';
 import { Role } from '../types';
 
 export const Navbar: React.FC<{ title: string }> = ({ title }) => {
-  const { user, logout } = useAuth();
+  const { user, profile, signOut } = useAuth();
 
   return (
     <nav className="bg-ptf-red text-white shadow-md print:hidden">
@@ -34,11 +34,11 @@ export const Navbar: React.FC<{ title: string }> = ({ title }) => {
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right hidden sm:block">
-              <div className="text-sm font-semibold">{user?.name}</div>
-              <div className="text-xs text-red-200 uppercase">{user?.role}</div>
+              <div className="text-sm font-semibold">{profile?.full_name || profile?.email}</div>
+              <div className="text-xs text-red-200 uppercase">{profile?.role}</div>
             </div>
             <button
-              onClick={logout}
+              onClick={signOut}
               className="bg-black hover:bg-gray-800 text-white px-3 py-1 rounded text-sm transition-colors border border-gray-900 shadow-sm"
             >
               Sign Out
